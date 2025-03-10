@@ -1,0 +1,36 @@
+import itertools
+
+class Node:
+
+    id_iter = itertools.count()
+
+    def __init__(self, w, left, right):
+        self.id = next(Node.id_iter) # Pour l'affichage de l'arbre
+        self.weight = w
+        self.child_left = left
+        self.child_right = right
+
+    def __repr__(self, depth):
+        ret = "\t"*depth+repr(self.weight)+"\n"
+        if self.child_left:
+            ret += self.child_left.__repr__(depth+1)
+        if self.child_right:
+            ret += self.child_right.__repr__(depth+1)
+        return ret
+
+class Leaf(Node):
+
+    def __init__(self, c, w):
+        Node.__init__(self, w, None, None)
+        self.character = c
+
+    def __repr__(self, depth):
+        return "\t"*depth+repr(self.weight)+" : "+repr(self.character)+"\n"
+    
+class Tree:
+
+    def __init__(self, root):
+        self.root = root
+
+    def __repr__(self):
+        return self.root.__repr__(0)
