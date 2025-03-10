@@ -12,6 +12,15 @@ class Node:
         if self.child_right:
             ret += self.child_right.__repr__(depth+1)
         return ret
+    
+    def huffman_code(self, codes, code):
+        if isinstance(self, Leaf):
+            codes[self.character] = code
+        else:
+            if self.child_left:
+                self.child_left.huffman_code(codes, code+"0")
+            if self.child_right:
+                self.child_right.huffman_code(codes, code+"1")
 
 class Leaf(Node):
 
@@ -27,7 +36,7 @@ class huffman_tree:
 
     def __init__(self, root):
         self.root = root
-    
+
 
     def __repr__(self):
         return self.root.__repr__(0)
@@ -61,6 +70,12 @@ def build_tree(leafs):
 
     return huffman_tree(nodes[0])
 
+def huffman_code(tree):
+    codes = {}
+    code = ""
+    tree.root.huffman_code(codes, code)
+    return codes
+
 
 
 phrase = "je mange des saucisses seches venant d'estonie"
@@ -68,3 +83,5 @@ occs_phrase = occurences(phrase)
 leafs = build_leafs(occs_phrase)
 tree = build_tree(leafs)
 print(tree)
+huff_code = huffman_code(tree)
+print(huff_code)
