@@ -36,15 +36,26 @@ def build_tree(leafs):
         k += 1
     return Tree(nodes[0])
 
-
+# Phase One
 def combination(phrase):
     occs = occurences(phrase)
     initial_seq = build_initial_seq(occs)
     return build_tree(initial_seq)
 
-def level_assignment():
-    pass
+def level_assignment_aux(node, leaf_levels, level=0):
+    if isinstance(node, Leaf):
+        leaf_levels.append((node, level))
+    else:
+        level_assignment_aux(node.child_left, leaf_levels, level=level+1)
+        level_assignment_aux(node.child_right, leaf_levels, level=level+1)
 
+# Phase Two
+def level_assignment(tree):
+    leaf_levels = []
+    level_assignment_aux(tree.root, leaf_levels)
+    return leaf_levels
+
+# Phase Three
 def recombination():
     pass
 
@@ -53,4 +64,7 @@ def recombination():
 phrase = "aaaaazzeeeeeeerrtyuiiooooppppp" # Même configuration que dans l'exemple de la thèse (5272111245)
 comb_tree = combination(phrase)
 plot_tree(comb_tree)
+leaf_levels = level_assignment(comb_tree)
+for leaf, level in leaf_levels:
+    print(leaf.__repr__(0), "niveau", level, "\n")
 
