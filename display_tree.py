@@ -5,7 +5,7 @@ def create_graph(dot, node, label_edges=False, root=False):
     if root:
         dot.node(str(node.id), "w: "+str(node.weight))
     if isinstance(node, Leaf):
-        label = f"w: \\'{node.weight}\\'\\nc: \'{node.character}\'"
+        label = f"w: {node.weight}\\nc: \'{node.character}\'"
         dot.node(str(node.id), label)
     else:
         if node.child_left:
