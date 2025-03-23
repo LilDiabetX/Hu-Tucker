@@ -82,29 +82,3 @@ def recombination(leaf_levels, debug=False):
             k += 1
     assert(levels[0][1]==0)
     return Tree(levels[0][0])
-    
-
-def main(debug):
-    #phrase = "je mange des saucisses seches venant d'estonie"
-    phrase = "aaaaazzeeeeeeerrtyuiiooooppppp" # Même configuration que dans l'exemple de la thèse (5272111245)
-    occs = occurences(phrase)
-    initial_seq = build_initial_seq(occs)
-    # Fin du Set-up
-
-    # Phase 1
-    comb_tree = combination(initial_seq, debug=debug)
-    if debug:
-        plot_tree(comb_tree, outputname="phase_1_tree")
-
-    # Phase 2
-    leaf_levels = level_assignment(comb_tree, initial_seq)
-    if debug:
-        for leaf, level in leaf_levels:
-            print(leaf.__repr__(0), "niveau", level, "\n")
-
-    # Phase 3
-    hu_tucker_tree = recombination(leaf_levels, debug=debug)
-    plot_tree(hu_tucker_tree, label_edges=True, outputname="phase_3_tree")
-
-main(debug=True)
-

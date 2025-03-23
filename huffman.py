@@ -29,13 +29,3 @@ def huffman_code(tree):
     code = ""
     huffman_code_rec(tree.root, codes, code)
     return codes
-
-
-phrase = "je mange des saucisses seches venant d'estonie"
-occs_phrase = occurences(phrase)
-leafs = build_initial_seq(occs_phrase)
-tree = build_huffman_tree(leafs)
-print(tree)
-plot_tree(tree, label_edges=True)
-huff_code = huffman_code(tree)
-print(huff_code)
