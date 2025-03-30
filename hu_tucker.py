@@ -93,6 +93,8 @@ def recombination_stack(leaf_levels, debug=False):
     
     k = 0
     while queue or len(stack)!=1:
+        print(f"Queue Content : {[l for _, l in queue]}")
+        print(f"Stack Content : {[l for _, l in stack]}")
         if len(stack) < 2 or stack[-1][1] != stack[-2][1]:
             elt = queue.popleft()
             stack.append(elt)
@@ -104,7 +106,6 @@ def recombination_stack(leaf_levels, debug=False):
             if debug:
                 plot_tree(Tree(new_elt), outputname=f"wip_phase_3_opt_tree_{k}")
                 k += 1
-    print(len(stack))
     assert(len(stack) == 1)
     assert(stack[0][1] == 0)
     return Tree(stack[0][0])
@@ -136,5 +137,6 @@ def main(debug):
     #plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree")
     plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree_opt")
 
-main(debug=False)
+if __name__== '__main__':
+    main(debug=False)
 
