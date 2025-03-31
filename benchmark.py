@@ -11,6 +11,7 @@ files_500 = [f for f in os.listdir(path + "/corpus_tests/500_char")]
 files_1000 = [f for f in os.listdir(path + "/corpus_tests/1000_char")]
 
 def bench_hu_tucker():
+    print("Hu-Tucker benchmark start")
     times_100 = np.zeros(len(files_100))
     times_500 = np.zeros(len(files_500))
     times_1000 = np.zeros(len(files_1000))
@@ -105,6 +106,7 @@ def bench_hu_tucker():
 
 
 def bench_huffman():
+    print("Huffman benchmark start")
     times_100 = np.zeros(len(files_100))
     times_500 = np.zeros(len(files_500))
     times_1000 = np.zeros(len(files_1000))
