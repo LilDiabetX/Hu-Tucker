@@ -79,7 +79,7 @@ def recombination(leaf_levels, debug=False):
         levels[i] = (new_node, l_i - 1)
         levels.pop(j)
         if debug:
-            plot_tree(Tree(new_node), outputname="wip_phase_3_tree_{k}")
+            plot_tree(Tree(new_node), outputname=f"wip_phase_3_tree_{k}")
             k += 1
     assert(levels[0][1]==0)
     return Tree(levels[0][0])

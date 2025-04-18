@@ -1,4 +1,5 @@
 import time
+import sys
 import numpy as np
 import hu_tucker_naive as ht
 import huffman as hm
@@ -10,12 +11,13 @@ files_100 = [f for f in os.listdir(path + "/corpus_tests/100_char")]
 files_500 = [f for f in os.listdir(path + "/corpus_tests/500_char")]
 files_1000 = [f for f in os.listdir(path + "/corpus_tests/1000_char")]
 
-def bench_hu_tucker():
+def bench_hu_tucker(save=True):
     print("Hu-Tucker benchmark start")
     times_100 = np.zeros(len(files_100))
     times_500 = np.zeros(len(files_500))
     times_1000 = np.zeros(len(files_1000))
-    output = open(path + "/output/result_hu_tucker_benchmark.csv", 'w')
+    if save:
+        output = open(path + "/output/result_hu_tucker_benchmark.csv", 'w')
 
     print("Processing 100 characters files...")
     for i, f in enumerate(files_100):
@@ -34,10 +36,13 @@ def bench_hu_tucker():
         # Phase 3
         hu_tucker_tree = ht.recombination(leaf_levels, debug=False)
         t_end = time.time()
-        output.write(str(t_end - t_start) + ';')
+        file.close()
+        if save:
+            output.write(str(t_end - t_start) + ';')
         times_100[i] = t_end - t_start
     print(str(len(files_100)) + " 100 characters files processed in " + str(np.sum(times_100)) + "s")
-    output.write('\n')
+    if save:
+        output.write('\n')
 
     print("Processing 500 characters files...")
     for i, f in enumerate(files_500):
@@ -56,10 +61,13 @@ def bench_hu_tucker():
         # Phase 3
         hu_tucker_tree = ht.recombination(leaf_levels, debug=False)
         t_end = time.time()
-        output.write(str(t_end - t_start) + ';')
+        file.close()
+        if save:
+            output.write(str(t_end - t_start) + ';')
         times_500[i] = t_end - t_start
     print(str(len(files_500)) + " 500 characters files processed in " + str(np.sum(times_500)) + "s")
-    output.write('\n')
+    if save:
+        output.write('\n')
 
     print("Processing 1000 characters files...")
     for i, f in enumerate(files_1000):
@@ -78,11 +86,14 @@ def bench_hu_tucker():
         # Phase 3
         hu_tucker_tree = ht.recombination(leaf_levels, debug=False)
         t_end = time.time()
-        output.write(str(t_end - t_start) + ';')
+        file.close()
+        if save:
+            output.write(str(t_end - t_start) + ';')
         times_1000[i] = t_end - t_start
     print(str(len(files_1000)) + " 1000 characters files processed in " + str(np.sum(times_1000)) + "s")
-    output.write('\n')
-    output.close()
+    if save:
+        output.write('\n')
+        output.close()
 
     times = [times_100, times_500, times_1000]
     means = [np.mean(t) for t in times]
@@ -107,12 +118,13 @@ def bench_hu_tucker():
 
 
 
-def bench_huffman():
+def bench_huffman(save=True):
     print("Huffman benchmark start")
     times_100 = np.zeros(len(files_100))
     times_500 = np.zeros(len(files_500))
     times_1000 = np.zeros(len(files_1000))
-    output = open(path + "/output/result_huffman_benchmark.csv", 'w')
+    if save:
+        output = open(path + "/output/result_huffman_benchmark.csv", 'w')
 
     print("Processing 100 characters files...")
     for i, f in enumerate(files_100):
@@ -124,10 +136,13 @@ def bench_huffman():
         tree = hm.build_huffman_tree(leafs)
         huff_code = hm.huffman_code(tree)
         t_end = time.time()
-        output.write(str(t_end - t_start) + ';')
+        file.close()
+        if save:
+            output.write(str(t_end - t_start) + ';')
         times_100[i] = t_end - t_start
     print(str(len(files_100)) + " 100 characters files processed in " + str(np.sum(times_100)) + "s")
-    output.write('\n')
+    if save:
+        output.write('\n')
 
     print("Processing 500 characters files...")
     for i, f in enumerate(files_500):
@@ -139,10 +154,13 @@ def bench_huffman():
         tree = hm.build_huffman_tree(leafs)
         huff_code = hm.huffman_code(tree)
         t_end = time.time()
-        output.write(str(t_end - t_start) + ';')
+        file.close()
+        if save:
+            output.write(str(t_end - t_start) + ';')
         times_500[i] = t_end - t_start
     print(str(len(files_500)) + " 500 characters files processed in " + str(np.sum(times_500)) + "s")
-    output.write('\n')
+    if save:
+        output.write('\n')
 
     print("Processing 1000 characters files...")
     for i, f in enumerate(files_1000):
@@ -154,11 +172,14 @@ def bench_huffman():
         tree = hm.build_huffman_tree(leafs)
         huff_code = hm.huffman_code(tree)
         t_end = time.time()
-        output.write(str(t_end - t_start) + ';')
+        file.close()
+        if save:
+            output.write(str(t_end - t_start) + ';')
         times_1000[i] = t_end - t_start
     print(str(len(files_1000)) + " 1000 characters files processed in " + str(np.sum(times_1000)) + "s")
-    output.write('\n')
-    output.close()
+    if save:
+        output.write('\n')
+        output.close()
 
     times = [times_100, times_500, times_1000]
     means = [np.mean(t) for t in times]
@@ -180,6 +201,35 @@ def bench_huffman():
     plt.tight_layout()
     plt.show()
     
-        
-bench_hu_tucker()
-#bench_huffman()
+
+def main():
+    options = sys.argv[1:]
+    right_option = False
+    if "-nosave" in options:
+        save = False
+    else:
+        save = True
+
+    if "-a" in options or len(options) == 0 or (not save and len(options) == 1):
+        right_option = True
+        bench_huffman(save)
+        bench_hu_tucker(save)
+    elif "-hf" in options:
+        right_option = True
+        bench_huffman(save)
+    elif "-ht" in options:
+        right_option = True
+        bench_hu_tucker(save)
+    if "-h" in options or not right_option:
+        print("Here is the list of the different options that you can use for this benchmark :")
+        print("No option or -a : execute every test function of the benchmark")
+        print("-hf : execute the bench_huffman function")
+        print("-ht : execute the bench_hu_tucker function")
+        print("-nosave : disable the save of the results in a csv file")
+        print("-h : get the list of the available options")
+        print("For instance, the line 'python3 benchmark.py -ht -ds' execute the bench_hu_tucker function but don't save the results in a csv file.")
+
+if __name__ == '__main__':
+  main()
+# bench_hu_tucker()
+# bench_huffman()
