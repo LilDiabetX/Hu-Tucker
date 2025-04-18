@@ -20,7 +20,7 @@ class Node:
 
 class Leaf(Node):
 
-    def __init__(self, c, w):
+    def __init__(self, w, c):
         Node.__init__(self, w, None, None)
         self.character = c
 
@@ -34,3 +34,26 @@ class Tree:
 
     def __repr__(self):
         return self.root.__repr__(0)
+    
+
+class Node_opt(Node):
+
+    def __init__(self, w, left, right):
+        super().__init__(w, left, right)
+        self.queue_participation = []
+
+    def add_participation(self, queue):
+        self.queue_participation.append(queue)
+
+    def __lt__(self, other):
+        return self.weight < other.weight
+
+
+class Leaf_opt(Node_opt):
+
+    def __init__(self, w, c):
+        super().__init__(w, None, None)
+        self.character = c
+
+    def __repr__(self, depth):
+        return "\t"*depth+repr(self.weight)+" : "+repr(self.character)+"\n"

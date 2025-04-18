@@ -2,7 +2,6 @@ import sys
 from tree_struct import Leaf, Node, Tree
 from utils import occurences, build_initial_seq
 from display_tree import plot_tree
-from collections import deque
 
 
 def leafs_between(i, j, nodes):
@@ -37,22 +36,22 @@ def combination(initial_seq, debug=False):
         nodes[i] = new_node
         nodes.pop(j)
         if debug:
-            plot_tree(Tree(nodes[i]), outputname="wip_phase_1_tree_{k}")
+            plot_tree(Tree(nodes[i]), outputname=f"wip_phase_1_tree_{k}")
             k += 1
     return Tree(nodes[0])
 
-def level_assignment_aux(node, leaf_levels, level=0):
+def level_assignment_aux(node, initial_seq, leaf_levels, level=0):
     if isinstance(node, Leaf):
-        i = leaf_levels.index(node)
+        i = initial_seq.index(node)
         leaf_levels[i] = (node, level)
     else:
-        level_assignment_aux(node.child_left, leaf_levels, level=level+1)
-        level_assignment_aux(node.child_right, leaf_levels, level=level+1)
+        level_assignment_aux(node.child_left, initial_seq, leaf_levels, level=level+1)
+        level_assignment_aux(node.child_right, initial_seq, leaf_levels, level=level+1)
 
 # Phase Two
 def level_assignment(tree, initial_seq):
-    leaf_levels = initial_seq.copy()
-    level_assignment_aux(tree.root, leaf_levels)
+    leaf_levels = [(node, None) for node in initial_seq]
+    level_assignment_aux(tree.root, initial_seq, leaf_levels)
 
     return leaf_levels
 
@@ -85,33 +84,6 @@ def recombination(leaf_levels, debug=False):
     assert(levels[0][1]==0)
     return Tree(levels[0][0])
 
-def recombination_stack(leaf_levels, debug=False):
-    stack = deque() # LIFO - use pop()
-    queue = deque() # FIFO - use popleft()
-    for leaf in leaf_levels:
-        queue.appendleft(leaf)
-    
-    k = 0
-    while queue or len(stack)!=1:
-        print(f"Queue Content : {[l for _, l in queue]}")
-        print(f"Stack Content : {[l for _, l in stack]}")
-        if len(stack) < 2 or stack[-1][1] != stack[-2][1]:
-            elt = queue.popleft()
-            stack.append(elt)
-        else:
-            q_1, l_1 = stack.pop()
-            q_2, _ = stack.pop()
-            new_elt = Node(q_1.weight+q_2.weight, q_1, q_2)
-            stack.append((new_elt, l_1-1))
-            if debug:
-                plot_tree(Tree(new_elt), outputname=f"wip_phase_3_opt_tree_{k}")
-                k += 1
-    assert(len(stack) == 1)
-    assert(stack[0][1] == 0)
-    return Tree(stack[0][0])
-
-
-
 def main(debug):
     #phrase = "je mange des saucisses seches venant d'estonie"
     phrase = "aaaaazzeeeeeeerrtyuiiooooppppp" # Même configuration que dans l'exemple de la thèse (5272111245)
@@ -131,12 +103,9 @@ def main(debug):
             print(leaf.__repr__(0), "niveau", level, "\n")
 
     # Phase 3
-    # Here, set if you want to use the optimal version of phase 3 or not by uncommenting the right lines
-    #hu_tucker_tree = recombination(leaf_levels, debug=debug)
-    hu_tucker_tree = recombination_stack(leaf_levels, debug=debug)
-    #plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree")
-    plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree_opt")
+    hu_tucker_tree = recombination(leaf_levels, debug=debug)
+    plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree_naive")
 
 if __name__== '__main__':
-    main(debug=False)
+    main(debug=True)
 
