@@ -1,20 +1,6 @@
 from tree_struct import Node, Leaf, Tree
 from display_tree import plot_tree
-
-def occurences(seq):
-    occs = {}
-    for c in seq:
-        if c not in occs.keys():
-            occs[c] = 1
-        else:
-            occs[c] += 1
-    return occs
-
-def build_leafs(occs):
-    leafs = []
-    for c in occs.keys():
-        leafs.append(Leaf(c, occs[c]))
-    return leafs
+from utils import occurences, build_initial_seq
 
 def build_huffman_tree(leafs):
     nodes = leafs.copy()
@@ -43,13 +29,3 @@ def huffman_code(tree):
     code = ""
     huffman_code_rec(tree.root, codes, code)
     return codes
-
-
-phrase = "je mange des saucisses seches venant d'estonie"
-occs_phrase = occurences(phrase)
-leafs = build_leafs(occs_phrase)
-tree = build_huffman_tree(leafs)
-print(tree)
-plot_tree(tree)
-huff_code = huffman_code(tree)
-print(huff_code)
