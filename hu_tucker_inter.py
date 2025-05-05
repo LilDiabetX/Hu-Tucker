@@ -27,23 +27,19 @@ def combination(initial_seq, debug=False):
         total = T[i].weight + T[i+1].weight
         heapq.heappush(MPQ, (total, i))
     k = 0
-    while len(A) > 1:
-        while MPQ:
-            total, hpq_id = heapq.heappop(MPQ)
-            seq, hpq = HPQs[hpq_id]
-            if len(hpq) >= 2:
-                break
-            else:
-                raise RuntimeError(f"MPQ vide mais {len(A)} éléments restants dans A — incohérence.")
-
+    for l in range(1, N):
+        total, hpq_id = heapq.heappop(MPQ)
+        seq, hpq = HPQs[hpq_id]
+            
         # On prend les deux plus petits éléments
-        (w1, n1), (w2, n2) = heapq.nsmallest(2, hpq)
+        (w1, n1) = hpq.pop()
+        (w2, n2) = hpq.pop()
         print("FUSION DE ")
         print("Poids :", n1.weight, "+", n2.weight, "=", n1.weight + n2.weight)
 
 
         # Supprimer n1 et n2 de toutes les HPQs où ils sont
-        affected_hpq_ids = set(n1.queue_participation + n2.queue_participation)
+        affected_hpq_ids = set(n1.queue_participation) | set(n2.queue_participation)
         for hid in affected_hpq_ids:
             s, h = HPQs[hid]
             h[:] = [(w, n) for (w, n) in h if n != n1 and n != n2]
@@ -56,13 +52,15 @@ def combination(initial_seq, debug=False):
         # Fusionner toutes les HPQs concernées (on les merge en une seule nouvelle)
         merged_seq = deque()
         merged_heap = []
-        for hid in sorted(affected_hpq_ids):
+        for hid in affected_hpq_ids:
             s, h = HPQs[hid]
             merged_seq.extend(s)
             merged_heap.extend(h)
             HPQs[hid] = (deque(), [])  # on vide l’ancienne HPQ
 
         heapq.heapify(merged_heap)
+        MPQ = [(x, y) for (x, y) in MPQ if y not in affected_hpq_ids]
+        heapq.heapify(MPQ)
 
         # Créer un nouveau noeud combiné
         new_node = Node_opt(w=n1.weight + n2.weight, left=n1, right=n2)
@@ -141,7 +139,7 @@ def recombination(leaf_levels, debug=False):
 
 def main(debug):
     #phrase = "je mange des saucisses seches venant d'estonie"
-    phrase = "aaaaazzeeeeeeerrtyuiiooooppppp" # Même configuration que dans l'exemple de la thèse (5272111245)
+    phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo" # Même configuration que dans l'exemple de la thèse (5272111245)
     occs = occurences(phrase)
     initial_seq = build_initial_seq_inter(occs)
     # Fin du Set-up
@@ -150,7 +148,7 @@ def main(debug):
     comb_tree = combination(initial_seq, debug=debug)
     if debug:
         plot_tree(comb_tree, outputname="phase_1_tree")
-
+"""
     # Phase 2
     leaf_levels = level_assignment(comb_tree, initial_seq)
     if debug:
@@ -160,7 +158,7 @@ def main(debug):
     # Phase 3
     hu_tucker_tree = recombination(leaf_levels, debug=debug)
     plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree_inter")
-
+"""
 if __name__== '__main__':
     main(debug=True)
 
