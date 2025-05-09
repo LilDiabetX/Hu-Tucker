@@ -120,26 +120,37 @@ def recombination(leaf_levels, debug=False):
         if debug:
             print(f"Queue Content : {[l for _, l in queue]}")
             print(f"Stack Content : {[l for _, l in stack]}")
-        if len(stack) < 2 or stack[-1][1] != stack[-2][1]:
+        if len(stack) < 2:
             elt = queue.popleft()
             stack.append(elt)
         else:
-            q_1, l_1 = stack.pop()
-            q_2, _ = stack.pop()
-            new_elt = Node(q_1.weight+q_2.weight, q_1, q_2)
-            stack.append((new_elt, l_1-1))
-            if debug:
-                plot_tree(Tree(new_elt), outputname=f"wip_phase_3_opt_tree_{k}")
-                k += 1
+            s_1 = stack.pop()
+            s_2 = stack.pop()
+            if s_1[1] != s_2[1]:
+                elt = queue.popleft()
+                stack.append(s_2)
+                stack.append(s_1)
+                stack.append(elt)
+            else:
+                stack.append(s_2)
+                stack.append(s_1)
+                q_1, l_1 = stack.pop()
+                q_2, _ = stack.pop()
+                new_elt = Node(q_1.weight+q_2.weight, q_1, q_2)
+                stack.append((new_elt, l_1-1))
+                if debug:
+                    plot_tree(Tree(new_elt), outputname=f"wip_phase_3_opt_tree_{k}")
+                    k += 1
     assert(len(stack) == 1)
     assert(stack[0][1] == 0)
     return Tree(stack[0][0])
 
 
 
+
 def main(debug):
     #phrase = "je mange des saucisses seches venant d'estonie"
-    phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo" # Même configuration que dans l'exemple de la thèse (5272111245)
+    phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo" # Même configuration que dans l'exemple de la thèse (1022114151725)
     occs = occurences(phrase)
     initial_seq = build_initial_seq_inter(occs)
     # Fin du Set-up
