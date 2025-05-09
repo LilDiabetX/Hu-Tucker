@@ -1,7 +1,7 @@
 import time
 import sys
 import numpy as np
-import hu_tucker_naive as ht
+import hu_tucker_inter as ht
 import huffman as hm
 import os
 import matplotlib.pyplot as plt

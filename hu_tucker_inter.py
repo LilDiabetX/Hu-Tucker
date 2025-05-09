@@ -1,6 +1,6 @@
 import sys
 import heapq
-from tree_struct import Leaf, Node, Tree, Node_opt, Leaf_opt
+from tree_struct import Leaf, Node, Tree
 from utils import occurences, build_initial_seq, build_initial_seq_inter
 from display_tree import plot_tree
 from collections import deque
@@ -136,7 +136,7 @@ def combination(initial_seq, debug=False):
     return Tree(A[0])
 
 def level_assignment_aux(node, index_map, leaf_levels, level=0):
-    if isinstance(node, Leaf_opt):
+    if isinstance(node, Leaf):
         i = index_map[node]
         leaf_levels[i] = (node, level)
     else:
@@ -192,7 +192,7 @@ def recombination(leaf_levels, debug=False):
 def main(debug):
     phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo" # Même configuration que dans l'exemple de la thèse (10, 2, 2, 1, 1, 4, 15, 17, 25)
     occs = occurences(phrase)
-    initial_seq = build_initial_seq_inter(occs)
+    initial_seq = build_initial_seq(occs)
     # Fin du Set-up
 
     # Phase 1
@@ -211,5 +211,5 @@ def main(debug):
     plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree_inter")
 
 if __name__== '__main__':
-    main(debug=True)
+    main(debug=False)
 
