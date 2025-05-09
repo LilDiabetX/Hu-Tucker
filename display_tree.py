@@ -1,10 +1,10 @@
 from graphviz import Digraph
-from tree_struct import Node, Leaf
+from tree_struct import Leaf, Leaf_opt
 
 def create_graph(dot, node, label_edges=False, root=False):
     if root:
         dot.node(str(node.id), "w: "+str(node.weight))
-    if isinstance(node, Leaf):
+    if isinstance(node, Leaf) or isinstance(node, Leaf_opt):
         label = f"w: {node.weight}\\nc: \'{node.character}\'"
         dot.node(str(node.id), label)
     else:

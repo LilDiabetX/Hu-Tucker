@@ -1,10 +1,13 @@
 import time
 import sys
 import numpy as np
-import hu_tucker as ht
+import hu_tucker_opt as ht
+import hu_tucker_naive as naive
 import huffman as hm
 import os
 import matplotlib.pyplot as plt
+import traceback
+import sys
 
 path = os.getcwd()
 files_100 = [f for f in os.listdir(path + "/corpus_tests/100_char")]
@@ -12,6 +15,7 @@ files_500 = [f for f in os.listdir(path + "/corpus_tests/500_char")]
 files_1000 = [f for f in os.listdir(path + "/corpus_tests/1000_char")]
 
 def bench_hu_tucker(save=True):
+    indexErrCount = 0
     print("Hu-Tucker benchmark start")
     times_100 = np.zeros(len(files_100))
     times_500 = np.zeros(len(files_500))
@@ -34,7 +38,17 @@ def bench_hu_tucker(save=True):
         leaf_levels = ht.level_assignment(comb_tree, initial_seq)
 
         # Phase 3
-        hu_tucker_tree = ht.recombination(leaf_levels, debug=False)
+        try:
+            hu_tucker_tree = ht.recombination(leaf_levels, debug=False)
+        except IndexError:
+            indexErrCount += 1
+            #traceback.print_exc()
+            #print(comb_tree)
+            #print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+            #print(naive.combination(initial_seq, debug=False))
+            #sys.exit(1)
+
+
         t_end = time.time()
         file.close()
         if save:
@@ -59,7 +73,10 @@ def bench_hu_tucker(save=True):
         leaf_levels = ht.level_assignment(comb_tree, initial_seq)
 
         # Phase 3
-        hu_tucker_tree = ht.recombination(leaf_levels, debug=False)
+        try:
+            hu_tucker_tree = ht.recombination(leaf_levels, debug=False)
+        except IndexError:
+            indexErrCount += 1
         t_end = time.time()
         file.close()
         if save:
@@ -84,13 +101,18 @@ def bench_hu_tucker(save=True):
         leaf_levels = ht.level_assignment(comb_tree, initial_seq)
 
         # Phase 3
-        hu_tucker_tree = ht.recombination(leaf_levels, debug=False)
+        try:
+            hu_tucker_tree = ht.recombination(leaf_levels, debug=False)
+        except IndexError:
+            indexErrCount += 1
         t_end = time.time()
         file.close()
         if save:
             output.write(str(t_end - t_start) + ';')
         times_1000[i] = t_end - t_start
     print(str(len(files_1000)) + " 1000 characters files processed in " + str(np.sum(times_1000)) + "s")
+
+    print(str(indexErrCount)+" IndexError dans recombination recensées.")
     if save:
         output.write('\n')
         output.close()
@@ -102,6 +124,7 @@ def bench_hu_tucker(save=True):
     axes[0].bar(labels, means, color=['blue', 'red', 'green'])
     axes[0].set_xlabel('nombre de caractères différents')
     axes[0].set_ylabel('Temps moyen')
+    axes[0].grid(axis='y', linestyle='--', alpha=0.5)
     axes[0].set_title('Temps moyen par nombre de caractères différents')
 
     for i, tableau in enumerate(times):
@@ -110,6 +133,7 @@ def bench_hu_tucker(save=True):
         axes[i + 1].set_ylabel('Temps')
         axes[i + 1].set_xlabel('Fichier')
         axes[i + 1].set_ylim(bottom=0)
+        axes[i + 1].grid(axis='y', linestyle='--', alpha=0.5)
     plt.tight_layout()
     plt.show()
 
@@ -131,8 +155,7 @@ def bench_huffman(save=True):
         occs_phrase = hm.occurences(text)
         leafs = hm.build_initial_seq(occs_phrase)
         t_start = time.time()
-        tree = hm.build_huffman_tree(leafs)
-        huff_code = hm.huffman_code(tree)
+        tree = hm.build_huffman_tree2(leafs)
         t_end = time.time()
         file.close()
         if save:
@@ -149,8 +172,7 @@ def bench_huffman(save=True):
         occs_phrase = hm.occurences(text)
         leafs = hm.build_initial_seq(occs_phrase)
         t_start = time.time()
-        tree = hm.build_huffman_tree(leafs)
-        huff_code = hm.huffman_code(tree)
+        tree = hm.build_huffman_tree2(leafs)
         t_end = time.time()
         file.close()
         if save:
@@ -167,8 +189,7 @@ def bench_huffman(save=True):
         occs_phrase = hm.occurences(text)
         leafs = hm.build_initial_seq(occs_phrase)
         t_start = time.time()
-        tree = hm.build_huffman_tree(leafs)
-        huff_code = hm.huffman_code(tree)
+        tree = hm.build_huffman_tree2(leafs)
         t_end = time.time()
         file.close()
         if save:
@@ -186,6 +207,7 @@ def bench_huffman(save=True):
     axes[0].bar(labels, means, color=['blue', 'red', 'green'])
     axes[0].set_xlabel('nombre de caractères différents')
     axes[0].set_ylabel('Temps moyen')
+    axes[0].grid(axis='y', linestyle='--', alpha=0.5)
     axes[0].set_title('Temps moyen par nombre de caractères différents')
 
     for i, tableau in enumerate(times):
@@ -193,6 +215,7 @@ def bench_huffman(save=True):
         axes[i + 1].set_title(labels[i])
         axes[i + 1].set_ylabel('Temps')
         axes[i + 1].set_xlabel('Fichier')
+        axes[i + 1].grid(axis='y', linestyle='--', alpha=0.5)
         axes[i + 1].set_ylim(bottom=0)
     plt.tight_layout()
     plt.show()
