@@ -1,6 +1,7 @@
 from tree_struct import Node, Leaf, Tree
 from display_tree import plot_tree
 from utils import occurences, build_initial_seq
+import heapq
 
 def build_huffman_tree(leafs):
     nodes = leafs.copy()
@@ -14,6 +15,19 @@ def build_huffman_tree(leafs):
         nodes.append(new_node)
 
     return Tree(nodes[0])
+
+def build_huffman_tree2(leafs):
+    heap = []
+    for l in leafs:
+        heapq.heappush(heap, l)
+
+    while len(heap) > 1:
+        left = heapq.heappop(heap)
+        right = heapq.heappop(heap)
+        merged = Node(left.weight + right.weight, left=left, right=right)
+        heapq.heappush(heap, merged)
+
+    return heap[0]
 
 def huffman_code_rec(node, codes, code):
     if isinstance(node, Leaf):
