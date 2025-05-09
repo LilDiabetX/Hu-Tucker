@@ -85,8 +85,8 @@ def recombination(leaf_levels, debug=False):
     return Tree(levels[0][0])
 
 def main(debug):
-    #phrase = "je mange des saucisses seches venant d'estonie"
-    phrase = "aaaaazzeeeeeeerrtyuiiooooppppp" # Même configuration que dans l'exemple de la thèse (5272111245)
+    phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo"
+    #phrase = "aaaaazzeeeeeeerrtyuiiooooppppp" # Même configuration que dans l'exemple de la thèse (5272111245)
     occs = occurences(phrase)
     initial_seq = build_initial_seq(occs)
     # Fin du Set-up
