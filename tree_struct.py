@@ -17,6 +17,11 @@ class Node:
         if self.child_right:
             ret += self.child_right.__repr__(depth+1)
         return ret
+    def __le__(self, other):
+        return (isinstance(other, Leaf) or isinstance(other, Node)) and self.weight <= other.weight
+    
+    def __lt__(self, other):
+        return (isinstance(other, Leaf) or isinstance(other, Node)) and self.weight < other.weight
 
 class Leaf(Node):
 
@@ -33,6 +38,12 @@ class Leaf(Node):
     def __hash__(self):
         return hash(self.character)
     
+    def __le__(self, other):
+        return (isinstance(other, Leaf) or isinstance(other, Node)) and self.weight <= other.weight
+    
+    def __lt__(self, other):
+        return (isinstance(other, Leaf) or isinstance(other, Node)) and self.weight < other.weight
+
 class Tree:
 
     def __init__(self, root):

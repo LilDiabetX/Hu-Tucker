@@ -133,8 +133,7 @@ def bench_huffman(save=True):
         occs_phrase = hm.occurences(text)
         leafs = hm.build_initial_seq(occs_phrase)
         t_start = time.time()
-        tree = hm.build_huffman_tree(leafs)
-        huff_code = hm.huffman_code(tree)
+        tree = hm.build_huffman_tree2(leafs)
         t_end = time.time()
         file.close()
         if save:
@@ -151,8 +150,7 @@ def bench_huffman(save=True):
         occs_phrase = hm.occurences(text)
         leafs = hm.build_initial_seq(occs_phrase)
         t_start = time.time()
-        tree = hm.build_huffman_tree(leafs)
-        huff_code = hm.huffman_code(tree)
+        tree = hm.build_huffman_tree2(leafs)
         t_end = time.time()
         file.close()
         if save:
@@ -169,8 +167,7 @@ def bench_huffman(save=True):
         occs_phrase = hm.occurences(text)
         leafs = hm.build_initial_seq(occs_phrase)
         t_start = time.time()
-        tree = hm.build_huffman_tree(leafs)
-        huff_code = hm.huffman_code(tree)
+        tree = hm.build_huffman_tree2(leafs)
         t_end = time.time()
         file.close()
         if save:
