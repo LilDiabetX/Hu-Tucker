@@ -27,6 +27,12 @@ class Leaf(Node):
     def __repr__(self, depth):
         return "\t"*depth+repr(self.weight)+" : "+repr(self.character)+"\n"
     
+    def __eq__(self, other):
+        return isinstance(other, Leaf) and self.character == other.character
+
+    def __hash__(self):
+        return hash(self.character)
+    
 class Tree:
 
     def __init__(self, root):

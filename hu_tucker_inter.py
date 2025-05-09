@@ -94,19 +94,19 @@ def combination(initial_seq, debug=False):
     return Tree(A[0])
 
 
-def level_assignment_aux(node, initial_seq, leaf_levels, level=0):
-    if isinstance(node, Leaf_opt):
-        i = initial_seq.index(node)
+def level_assignment_aux(node, index_map, leaf_levels, level=0):
+    if isinstance(node, Leaf):
+        i = index_map[node]
         leaf_levels[i] = (node, level)
     else:
-        level_assignment_aux(node.child_left, initial_seq, leaf_levels, level=level+1)
-        level_assignment_aux(node.child_right, initial_seq, leaf_levels, level=level+1)
+        level_assignment_aux(node.child_left, index_map, leaf_levels, level=level+1)
+        level_assignment_aux(node.child_right, index_map, leaf_levels, level=level+1)
 
 # Phase Two
 def level_assignment(tree, initial_seq):
+    index_map = {node: i for i, node in enumerate(initial_seq)}
     leaf_levels = [(node, None) for node in initial_seq]
-    level_assignment_aux(tree.root, initial_seq, leaf_levels)
-
+    level_assignment_aux(tree.root, index_map, leaf_levels)
     return leaf_levels
 
 def recombination(leaf_levels, debug=False):
@@ -153,7 +153,7 @@ def main(debug):
     leaf_levels = level_assignment(comb_tree, initial_seq)
     if debug:
         for leaf, level in leaf_levels:
-            print(leaf.__repr__(0), "niveau", level, "\n")
+            print(leaf.__repr__(), "niveau", level, "\n")
 
     # Phase 3
     hu_tucker_tree = recombination(leaf_levels, debug=debug)

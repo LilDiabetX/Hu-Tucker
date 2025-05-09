@@ -40,19 +40,19 @@ def combination(initial_seq, debug=False):
             k += 1
     return Tree(nodes[0])
 
-def level_assignment_aux(node, initial_seq, leaf_levels, level=0):
+def level_assignment_aux(node, index_map, leaf_levels, level=0):
     if isinstance(node, Leaf):
-        i = initial_seq.index(node)
+        i = index_map[node]
         leaf_levels[i] = (node, level)
     else:
-        level_assignment_aux(node.child_left, initial_seq, leaf_levels, level=level+1)
-        level_assignment_aux(node.child_right, initial_seq, leaf_levels, level=level+1)
+        level_assignment_aux(node.child_left, index_map, leaf_levels, level=level+1)
+        level_assignment_aux(node.child_right, index_map, leaf_levels, level=level+1)
 
 # Phase Two
 def level_assignment(tree, initial_seq):
+    index_map = {node: i for i, node in enumerate(initial_seq)}
     leaf_levels = [(node, None) for node in initial_seq]
-    level_assignment_aux(tree.root, initial_seq, leaf_levels)
-
+    level_assignment_aux(tree.root, index_map, leaf_levels)
     return leaf_levels
 
 def select_args_nodes_to_merge_levels(levels):
