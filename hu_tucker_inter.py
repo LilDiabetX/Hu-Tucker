@@ -5,97 +5,138 @@ from utils import occurences, build_initial_seq, build_initial_seq_inter
 from display_tree import plot_tree
 from collections import deque
 
-# Phase One
+#Phase One
 def combination(initial_seq, debug=False):
-    N = len(initial_seq)
-    T = list(initial_seq)
-    A = list(T)
+    T = [{'s': l.weight, 'nt' : 'E', 'c' : l.character, 'mpql': None, 'mpqr': None} for l in initial_seq]
 
-    HPQs = []  # Liste des HPQs (chacune = [deque, heap])
-    MPQ = []   # Heap contenant (somme des 2 plus petits poids, HPQ index)
-
-    # Initialisation
-    for i in range(N - 1):
-        sequence = deque([T[i], T[i+1]])
-        hpq_heap = [(T[i].weight, T[i]), (T[i+1].weight, T[i+1])]
-        heapq.heapify(hpq_heap)
-        HPQs.append((sequence, hpq_heap))
-
-        T[i].add_participation(i)
-        T[i+1].add_participation(i)
-
-        total = T[i].weight + T[i+1].weight
-        heapq.heappush(MPQ, (total, i))
-    k = 0
-    for l in range(1, N):
-        total, hpq_id = heapq.heappop(MPQ)
-        seq, hpq = HPQs[hpq_id]
-            
-        # On prend les deux plus petits éléments
-        (w1, n1) = hpq.pop()
-        (w2, n2) = hpq.pop()
-        print("FUSION DE ")
-        print("Poids :", n1.weight, "+", n2.weight, "=", n1.weight + n2.weight)
+    A = initial_seq.copy()
+    # A = [o['s'] for o in T]
+    # create HPQs from any existing T E = external node I = internal node
+    hpqs = []
+    started = False
+    hpq = []
+    n=0
+    while True:
+        value, node_type = T[n]['s'], T[n]['nt'] 
+        hpq.append([value, n])
+        if node_type == 'E' and started:
+            hpqs.append(hpq)
+            hpq = []
+            started = False
+            T[n]['mpql'] = n -1
+            n = n-1
+        elif node_type == 'E' and not started:
+            started = True  
+            T[n]['mpqr'] = n
+        n = n + 1
+        if n == len(T):
+            # hpqs.append(hpq)
+            break
+    T[-1]['mpqr'] = None
 
 
-        # Supprimer n1 et n2 de toutes les HPQs où ils sont
-        affected_hpq_ids = set(n1.queue_participation) | set(n2.queue_participation)
-        for hid in affected_hpq_ids:
-            s, h = HPQs[hid]
-            h[:] = [(w, n) for (w, n) in h if n != n1 and n != n2]
-            try: s.remove(n1)
-            except: pass
-            try: s.remove(n2)
-            except: pass
-            heapq.heapify(h)
+    # create MPQ from HPQs
+    mpq = []
+    for n, hpq in enumerate(hpqs):
+        heapq.heapify(hpq)
+        # version that does not leaves HPQs in place
+        # access = O(log(N))
+        # w1, i= heapq.heappop()
+        # w2, j= heapq.heappop()
+        # version that leaves HPQs in place
+        # access = O(NlogN) (sort) + O(1) 
+        _hpq = sorted(hpq) # sort elems of the list to make the heap invariant
+        w1, i= _hpq[0] # access smallest elem without popping element from HPQ
+        w2, j= _hpq[1] # access 2nd smallest elem without popping element from HPQ
 
-        # Fusionner toutes les HPQs concernées (on les merge en une seule nouvelle)
-        merged_seq = deque()
-        merged_heap = []
-        for hid in affected_hpq_ids:
-            s, h = HPQs[hid]
-            merged_seq.extend(s)
-            merged_heap.extend(h)
-            HPQs[hid] = (deque(), [])  # on vide l’ancienne HPQ
+        heapq.heappush(mpq, [w1+w2, i,j, n]) # need i,j to resolve ties, which are resolved automatically by the leaftist heap
 
-        heapq.heapify(merged_heap)
-        MPQ = [(x, y) for (x, y) in MPQ if y not in affected_hpq_ids]
-        heapq.heapify(MPQ)
 
-        # Créer un nouveau noeud combiné
-        new_node = Node_opt(w=n1.weight + n2.weight, left=n1, right=n2)
-        if(debug):
-            plot_tree(Tree(new_node), outputname=f"wip_phase_1_tree_{k}")
-            k+=1
+    iter = 0
+    nodes = []
+    while True:
+        ### ======== UPDATE -- Main loop
+        # --- extract_min
+        new_node_weight, i,j, hpq_id = heapq.heappop(mpq)
+        # _L, _R = hpqs[hpq_id][0], hpqs[hpq_id][-1] # main hpq
+        if i < j:
+            _L = [A[i].weight,i]
+            _R = [A[j].weight, j]
+        else:
+            _L = [A[j].weight,j]
+            _R = [A[i].weight, i]
+        # remove nodes, not entire HPQ
+        hpqs[hpq_id].remove(_L)# O(N)
+        hpqs[hpq_id].remove(_R)# O(N)
 
-        # Mise à jour de A
-        A = [n for n in A if n != n1 and n != n2]
-        A.append(new_node)
 
-        # Ajouter le nouveau noeud à la séquence et au heap
-        merged_seq.append(new_node)
-        heapq.heappush(merged_heap, (new_node.weight, new_node))
+        hpq_merge = [hpq_id]
+        try:
+            k = 1
+            while (hpq_id -k > 0) and (hpqs[hpq_id-k] == []):
+                k += 1
+            hpqs[hpq_id-k].remove(_L) # O(N)
+            hpq_merge.append(hpq_id-k)
+        except (ValueError, IndexError): 
+            pass
+        try:
+            k = 1
+            while hpqs[hpq_id+k] == []:
+                k += 1
+            hpqs[hpq_id+k].remove(_R) # O(N)
+            hpq_merge.append(hpq_id+k)
+        except (ValueError, IndexError):
+            pass
 
-        # Créer une nouvelle HPQ
-        new_hpq_id = len(HPQs)
-        HPQs.append((merged_seq, merged_heap))
-        new_node.queue_participation = [new_hpq_id]
+        # --- merge HPQs
+        hpq_new = list(heapq.merge(*[hpqs[hpq_id] for hpq_id in hpq_merge]))
+        min_hpq_id = int(1e10)
+        for hpq_id in hpq_merge:
+            if len(hpqs[hpq_id]) == 1:
+                hpqs[hpq_id]  = []
+            min_hpq_id = min(min_hpq_id, hpq_id)
+        # --- clean remaining hpq:
+        for hpq_id in hpq_merge:
+            hpqs[hpq_id] = []
+        # --- add new_hpq
+        hpqs[min_hpq_id] = hpq_new
 
-        # Ajouter à MPQ
-        if len(merged_heap) >= 2:
-            smallest_two = heapq.nsmallest(2, merged_heap)
-            if len(smallest_two) == 2:
-                w1, _ = smallest_two[0]
-                w2, _ = smallest_two[1]
-                heapq.heappush(MPQ, (w1 + w2, new_hpq_id))
+        # hpqs.append(hpq_new)
+        # --- delete entries in MPQ
 
-    print(type(A[0]))
-    print(type(Tree(A[0])))
+        mpq = [m for m in mpq if m[3] not in hpq_merge] # O(N)
+        # --- new node
+        new_node = [new_node_weight, min(i,j)]
+        new_node_A = Node(new_node_weight, A[_L[1]], A[_R[1]])
+        if debug:
+            plot_tree(Tree(new_node_A), outputname=f"wip_phase_1_tree_{iter}")
+            iter += 1
+        nodes.append(new_node)
+        # --- update A
+        if i < j:
+            A[i] = new_node_A
+            A[j] = None
+        else:
+            A[j] = new_node_A
+            A[i] = None
+
+        # --- insert new node into hpq
+        heapq.heappush(hpq_new, new_node)
+
+        if len(hpq_new) == 1:
+            break
+        # --- insert hpq_new into mpq
+        _hpq_new = sorted(hpq_new) # sort elems of the list to make the heap invariant
+        
+        w1, i= _hpq_new[0] # access smallest elem without popping element from HPQ
+        w2, j= _hpq_new[1]
+
+        heapq.heappush(mpq, [w1+w2, i,j, min_hpq_id])
+    print(A[0])
     return Tree(A[0])
 
-
 def level_assignment_aux(node, index_map, leaf_levels, level=0):
-    if isinstance(node, Leaf):
+    if isinstance(node, Leaf_opt):
         i = index_map[node]
         leaf_levels[i] = (node, level)
     else:
@@ -104,8 +145,8 @@ def level_assignment_aux(node, index_map, leaf_levels, level=0):
 
 # Phase Two
 def level_assignment(tree, initial_seq):
-    index_map = {node: i for i, node in enumerate(initial_seq)}
-    leaf_levels = [(node, None) for node in initial_seq]
+    index_map = {leaf: i for i, leaf in enumerate(initial_seq)}
+    leaf_levels = [(leaf, None) for leaf in initial_seq]
     level_assignment_aux(tree.root, index_map, leaf_levels)
     return leaf_levels
 
@@ -149,8 +190,7 @@ def recombination(leaf_levels, debug=False):
 
 
 def main(debug):
-    #phrase = "je mange des saucisses seches venant d'estonie"
-    phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo" # Même configuration que dans l'exemple de la thèse (1022114151725)
+    phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo" # Même configuration que dans l'exemple de la thèse (10, 2, 2, 1, 1, 4, 15, 17, 25)
     occs = occurences(phrase)
     initial_seq = build_initial_seq_inter(occs)
     # Fin du Set-up
@@ -159,7 +199,7 @@ def main(debug):
     comb_tree = combination(initial_seq, debug=debug)
     if debug:
         plot_tree(comb_tree, outputname="phase_1_tree")
-"""
+
     # Phase 2
     leaf_levels = level_assignment(comb_tree, initial_seq)
     if debug:
@@ -169,7 +209,7 @@ def main(debug):
     # Phase 3
     hu_tucker_tree = recombination(leaf_levels, debug=debug)
     plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree_inter")
-"""
+
 if __name__== '__main__':
     main(debug=True)
 

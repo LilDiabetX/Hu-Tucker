@@ -10,13 +10,14 @@ class Node:
         self.child_left = left
         self.child_right = right
 
-    def __repr__(self, depth):
+    def __repr__(self, depth=0):
         ret = "\t"*depth+repr(self.weight)+"\n"
         if self.child_left:
             ret += self.child_left.__repr__(depth+1)
         if self.child_right:
             ret += self.child_right.__repr__(depth+1)
         return ret
+    
     def __le__(self, other):
         return (isinstance(other, Leaf) or isinstance(other, Node)) and self.weight <= other.weight
     
@@ -72,5 +73,5 @@ class Leaf_opt(Node_opt):
         super().__init__(w, None, None)
         self.character = c
 
-    def __repr__(self, depth):
+    def __repr__(self, depth=0):
         return "\t"*depth+repr(self.weight)+" : "+repr(self.character)+"\n"
