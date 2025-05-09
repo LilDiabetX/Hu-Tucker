@@ -85,8 +85,8 @@ def recombination(leaf_levels, debug=False):
     return Tree(levels[0][0])
 
 def main(debug):
-    phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo"
-    #phrase = "aaaaazzeeeeeeerrtyuiiooooppppp" # Même configuration que dans l'exemple de la thèse (5272111245)
+    #phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo"
+    phrase = "aaaaazzeeeeeeerrtyuiiooooppppp" # Même configuration que dans l'exemple de la thèse (5272111245)
     occs = occurences(phrase)
     initial_seq = build_initial_seq(occs)
     # Fin du Set-up
@@ -107,5 +107,5 @@ def main(debug):
     plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree_naive")
 
 if __name__== '__main__':
-    main(debug=True)
+    main(debug=False)
 
