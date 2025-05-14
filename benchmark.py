@@ -112,7 +112,7 @@ def bench_hu_tucker(save=True):
         times_1000[i] = t_end - t_start
     print(str(len(files_1000)) + " 1000 characters files processed in " + str(np.sum(times_1000)) + "s")
 
-    print(str(indexErrCount)+" IndexError dans recombination recensées.")
+    print(str(indexErrCount)+" IndexError dans recombination recensées sur "+str(len(files_100)+len(files_500)+len(files_1000))+" tests")
     if save:
         output.write('\n')
         output.close()

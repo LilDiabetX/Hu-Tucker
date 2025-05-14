@@ -32,12 +32,13 @@ def combination(initial_seq, debug=False):
             # hpqs.append(hpq)
             break
     T[-1]['mpqr'] = None
+    #print(f"hpqs (init) : {hpqs}")
 
 
     # create MPQ from HPQs
     mpq = []
     for n, hpq in enumerate(hpqs):
-        heapq.heapify(hpq)
+        # heapq.heapify(hpq)
         # version that does not leaves HPQs in place
         # access = O(log(N))
         # w1, i= heapq.heappop()
@@ -49,14 +50,21 @@ def combination(initial_seq, debug=False):
         w2, j= _hpq[1] # access 2nd smallest elem without popping element from HPQ
 
         heapq.heappush(mpq, [w1+w2, i,j, n]) # need i,j to resolve ties, which are resolved automatically by the leaftist heap
-
+    #print(f"mpq : {mpq}")
 
     iter = 0
     nodes = []
     while True:
+        #print()
+        #print("iter =", iter)
+        #print(f"hpqs : {hpqs}")
+        #print(f"mpq : {mpq}")
         ### ======== UPDATE -- Main loop
         # --- extract_min
         new_node_weight, i,j, hpq_id = heapq.heappop(mpq)
+        #print("new_node_weight :", new_node_weight)
+        #print("i, j :", i, ",", j)
+        #print("hpq_id :", hpq_id)
         # _L, _R = hpqs[hpq_id][0], hpqs[hpq_id][-1] # main hpq
         if i < j:
             _L = [A[i].weight,i]
@@ -74,6 +82,7 @@ def combination(initial_seq, debug=False):
             k = 1
             while (hpq_id -k > 0) and (hpqs[hpq_id-k] == []):
                 k += 1
+            #print("hpq_id-k :", hpq_id-k)
             hpqs[hpq_id-k].remove(_L) # O(N)
             hpq_merge.append(hpq_id-k)
         except (ValueError, IndexError): 
@@ -82,10 +91,12 @@ def combination(initial_seq, debug=False):
             k = 1
             while hpqs[hpq_id+k] == []:
                 k += 1
+            #print("hpq_id+k :", hpq_id+k)
             hpqs[hpq_id+k].remove(_R) # O(N)
             hpq_merge.append(hpq_id+k)
         except (ValueError, IndexError):
             pass
+        #print("hpq_merge :", hpq_merge)
 
         # --- merge HPQs
         hpq_new = list(heapq.merge(*[hpqs[hpq_id] for hpq_id in hpq_merge]))
@@ -94,22 +105,25 @@ def combination(initial_seq, debug=False):
             if len(hpqs[hpq_id]) == 1:
                 hpqs[hpq_id]  = []
             min_hpq_id = min(min_hpq_id, hpq_id)
+        #print("min_hpq_id :",min_hpq_id)
         # --- clean remaining hpq:
         for hpq_id in hpq_merge:
             hpqs[hpq_id] = []
         # --- add new_hpq
+        #print("hpq_new :", hpq_new)
         hpqs[min_hpq_id] = hpq_new
 
         # hpqs.append(hpq_new)
         # --- delete entries in MPQ
 
         mpq = [m for m in mpq if m[3] not in hpq_merge] # O(N)
+        heapq.heapify(mpq)
         # --- new node
         new_node = [new_node_weight, min(i,j)]
         new_node_A = Node(new_node_weight, A[_L[1]], A[_R[1]])
         if debug:
             plot_tree(Tree(new_node_A), outputname=f"wip_phase_1_tree_{iter}")
-            iter += 1
+        iter += 1
         nodes.append(new_node)
         # --- update A
         if i < j:
@@ -121,6 +135,7 @@ def combination(initial_seq, debug=False):
 
         # --- insert new node into hpq
         heapq.heappush(hpq_new, new_node)
+        #print("hpq_new post new node :", hpq_new)
 
         if len(hpq_new) == 1:
             break
@@ -188,8 +203,8 @@ def recombination(leaf_levels, debug=False):
 
 
 def main(debug):
-    #phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo" # Même configuration que dans l'exemple de la thèse (10, 2, 2, 1, 1, 4, 15, 17, 25)
-    phrase = "aaaaazzeeeeeeerrtyuiiooooppppp"
+    phrase = "aaaaaaaaaazzeertyyyyuuuuuuuuuuuuuuuiiiiiiiiiiiiiiiiiooooooooooooooooooooooooo" # Même configuration que dans l'exemple de la thèse (10, 2, 2, 1, 1, 4, 15, 17, 25)
+    #phrase = "aaaaazzeeeeeeerrtyuiiooooppppp"
     occs = occurences(phrase)
     initial_seq = build_initial_seq(occs)
     # Fin du Set-up
@@ -207,7 +222,7 @@ def main(debug):
 
     # Phase 3
     hu_tucker_tree = recombination(leaf_levels, debug=debug)
-    plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree_inter")
+    plot_tree(hu_tucker_tree, label_edges=True, outputname="hu_tucker_tree_opt")
 
 if __name__== '__main__':
     main(debug=False)
