@@ -246,7 +246,7 @@ def main():
         print("-ht : execute the bench_hu_tucker function")
         print("-nosave : disable the save of the results in a csv file")
         print("-h : get the list of the available options")
-        print("For instance, the line 'python3 benchmark.py -ht -ds' execute the bench_hu_tucker function but don't save the results in a csv file.")
+        print("For instance, the line 'python3 benchmark.py -ht -nosave' execute the bench_hu_tucker function but don't save the results in a csv file.")
 
 if __name__ == '__main__':
   main()
